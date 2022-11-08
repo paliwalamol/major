@@ -28,16 +28,20 @@ export default function CreatorDashboard() {
     const data = await contract.fetchItemsListed()
 
     const items = await Promise.all(data.map(async i => {
+      console.log(data[1]);
       const tokenUri = await contract.tokenURI(i.tokenId)
       const meta = await axios.get(tokenUri)
       let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
+      
       let item = {
         price,
+        // date, 
         tokenId: i.tokenId.toNumber(),
         seller: i.seller,
         owner: i.owner,
         image: meta.data.image,
       }
+      console.log()
       return item
     }))
 
@@ -54,6 +58,8 @@ export default function CreatorDashboard() {
             nfts.map((nft, i) => (
               <div key={i} className="border shadow rounded-xl overflow-hidden">
                 <img src={nft.image} className="rounded" />
+                {/* <div>{nft.date}</div> */}
+                {/* <div>hello world</div> */}
                 <div className="p-4 bg-black">
                   <p className="text-2xl font-bold text-white">Price - {nft.price} Eth</p>
                 </div>

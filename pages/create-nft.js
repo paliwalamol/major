@@ -58,10 +58,13 @@ export default function CreateItem() {
 
     /* next, create the item */
     const price = ethers.utils.parseUnits(formInput.price, 'ether')
+    
+    // const date = parseInt(formInput.date);
+    // console.log(date);
     let contract = new ethers.Contract(marketplaceAddress, NFTMarketplace.abi, signer)
     let listingPrice = await contract.getListingPrice()
     listingPrice = listingPrice.toString()
-    let transaction = await contract.createToken(url, price, { value: listingPrice })
+    let transaction = await contract.createToken(url, price , { value: listingPrice })
     await transaction.wait()
    
     router.push('/')
@@ -75,6 +78,11 @@ export default function CreateItem() {
           className="mt-8 border rounded p-4"
           onChange={e => updateFormInput({ ...formInput, name: e.target.value })}
         />
+        {/* <input 
+          placeholder="Expiry Date"
+          className="mt-8 border rounded p-4"
+          onChange={e => updateFormInput({ ...formInput, date: e.target.value })}
+        /> */}
         <textarea
           placeholder="Asset Description"
           className="mt-2 border rounded p-4"

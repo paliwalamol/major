@@ -5,7 +5,13 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+
+
 import "hardhat/console.sol";
+
+
+
 
 contract NFTMarketplace is ERC721URIStorage {
     using Counters for Counters.Counter;
@@ -22,6 +28,7 @@ contract NFTMarketplace is ERC721URIStorage {
       address payable seller;
       address payable owner;
       uint256 price;
+      uint256 date;
       bool sold;
     }
 
@@ -30,6 +37,7 @@ contract NFTMarketplace is ERC721URIStorage {
       address seller,
       address owner,
       uint256 price,
+      uint256 date,
       bool sold
     );
 
@@ -62,6 +70,7 @@ contract NFTMarketplace is ERC721URIStorage {
     function createMarketItem(
       uint256 tokenId,
       uint256 price
+      
     ) private {
       require(price > 0, "Price must be at least 1 wei");
       require(msg.value == listingPrice, "Price must be equal to listing price");
@@ -71,6 +80,7 @@ contract NFTMarketplace is ERC721URIStorage {
         payable(msg.sender),
         payable(address(this)),
         price,
+        block.timestamp+60,
         false
       );
 
@@ -80,6 +90,7 @@ contract NFTMarketplace is ERC721URIStorage {
         msg.sender,
         address(this),
         price,
+        block.timestamp+60,
         false
       );
     }
@@ -90,6 +101,7 @@ contract NFTMarketplace is ERC721URIStorage {
       require(msg.value == listingPrice, "Price must be equal to listing price");
       idToMarketItem[tokenId].sold = false;
       idToMarketItem[tokenId].price = price;
+      // idToMarketItem[tokenId].date = date;
       idToMarketItem[tokenId].seller = payable(msg.sender);
       idToMarketItem[tokenId].owner = payable(address(this));
       _itemsSold.decrement();
@@ -115,21 +127,26 @@ contract NFTMarketplace is ERC721URIStorage {
     }
 
     /* Returns all unsold market items */
+    // function Burn(MarketItem[] memory items) public {
+       
+    // }
     function fetchMarketItems() public view returns (MarketItem[] memory) {
       uint itemCount = _tokenIds.current();
       uint unsoldItemCount = _tokenIds.current() - _itemsSold.current();
       uint currentIndex = 0;
 
       MarketItem[] memory items = new MarketItem[](unsoldItemCount);
+      
       for (uint i = 0; i < itemCount; i++) {
-        if (idToMarketItem[i + 1].owner == address(this)) {
+        // if(idToMarketItem[i + 1].date >= block.timestamp)_burn(idToMarketItem[i + 1].tokenId);
+       if (idToMarketItem[i + 1].owner == address(this) && idToMarketItem[i + 1].sold==false) {
           uint currentId = i + 1;
           MarketItem storage currentItem = idToMarketItem[currentId];
           items[currentIndex] = currentItem;
           currentIndex += 1;
         }
       }
-      return items;
+     return items;
     }
 
     /* Returns only items that a user has purchased */
